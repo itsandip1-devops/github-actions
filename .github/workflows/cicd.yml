@@ -56,3 +56,38 @@ jobs:
     - name: Gitleaks Code Scan
       run: gitleaks detect source . -r gitleaks-report.json -f json
       
+  test:
+    needs: security-check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Unit test cases
+      run: mvn test
+
+  build-project-and-sonar-scan:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build Project
+      run: mvn package
+
+    - name: SonarQube Scan
+      uses: actions/setup-java@v4
+
+    - name: Sonar Quality Gate Check
+      uses: actions/setup-java@v4
+    
+      
